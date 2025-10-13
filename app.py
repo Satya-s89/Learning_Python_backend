@@ -1,55 +1,22 @@
-from flask import Flask, request
-from dotenv import load_dotenv
-import os
+from flask import Flask
+from config import Config
+from models.user import db
+from routes.auth import auth_bp
+from routes.api import api_bp
 
-load_dotenv()
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-
-@app.route('/')
-
-def home():
-    return f"Hello, This is my python Backend. Secret Key: {app.config['SECRET_KEY']}"
-
-@app.route('/api/greet/<username>')
-def greet_user(username):
-    return {"message": f"Hello, {username}! Welcome to my python backend"}
-
-@app.route("/api/echo", methods=["POST"])
-def echo():
-    data = request.get_json()
-    return {"You_sent": data}
-
-@app.route("/api/login", methods=["POST"])
-def login():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
-    if username and password:
-        return {"message": f"Hello, {username}"}
-    else:
-        return {"message": "Missing username or password"}
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
     
-@app.route("/api/signup", methods=["POST"])
-def signup():
-    data = request.get_json()
-
-    username = data.get("username")
-    email = data.get("email")
-    password = data.get("password")
+    db.init_app(app)
     
-    if not username or not email or not password:
-        return {"error": "All fields are required"}
-    print(f"New signup: {username}, {email}")
-
-    return {
-        "message": f"Signup successful for {username}",
-        "user": {
-            "username": username,
-            "email": email
-        }
-    }, 201
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(api_bp)
+    
+    return app
 
 if __name__ == '__main__':
+    app = create_app()
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
