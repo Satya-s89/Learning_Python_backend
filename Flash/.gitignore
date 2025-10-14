@@ -1,4 +1,23 @@
+# Flask
+*.pyc
+__pycache__/
+instance/
+.webassets-cache
+
+# Environment variables
 .env
 
-venv
+# Database
+*.db
 
+# Virtual environment
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
